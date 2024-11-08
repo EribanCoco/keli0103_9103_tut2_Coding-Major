@@ -1,49 +1,8 @@
 
-// Create an array of plates to store the positions of the outer layer of the plates
-let plates = [
-  // Outermost layer
-  { x: 0.135, y: 0.13, type: 1 },
-  { x: 0.43, y: 0.07, type: 2 },
-  { x: 0.73, y: 0.008, type: 3 },
-  { x: 0.07, y: 0.4, type: 4 },
-  { x: 0.35, y: 0.34, type: 3 },
-  { x: 0.63, y: 0.27, type: 5 },
-  { x: 0.93, y: 0.2, type: 5 },
-  { x: -0.02, y: 0.67, type: 5 },
-  { x: 0.27, y: 0.62, type: 6 },
-  { x: 0.56, y: 0.55, type: 7 },
-  { x: 0.85, y: 0.48, type: 2 },
-  { x: 0.16, y: 0.89, type: 7 },
-  { x: 0.46, y: 0.85, type: 2 },
-  { x: 0.76, y: 0.77, type: 1 },
-  { x: 1.05, y: 0.71, type: 4 },
-  { x: 0.65, y: 1.07, type: 5 },
-  { x: 0.95, y: 1.0, type: 1 },
-];
-
-// Create an array of foods to store the positions of the food items
-let foods = [
-  //The center of the food position
-  { x: 0.135, y: 0.13, type: 1 },
-  { x: 0.43, y: 0.07, type: 2 },
-  { x: 0.73, y: 0.008, type: 3 },
-  { x: 0.07, y: 0.4, type: 4 },
-  { x: 0.35, y: 0.34, type: 3 },
-  { x: 0.63, y: 0.27, type: 5 },
-  { x: 0.93, y: 0.2, type: 6 },
-  { x: -0.02, y: 0.67, type: 6 },
-  // { x: 0.27, y: 0.62 ,type:6},
-  { x: 0.56, y: 0.55, type: 7 },
-  { x: 0.85, y: 0.48, type: 8 },
-  { x: 0.16, y: 0.89, type: 9 },
-  { x: 0.46, y: 0.85, type: 10 },
-  { x: 0.76, y: 0.77, type: 11 },
-  { x: 1.05, y: 0.71, type: 4 },
-  { x: 0.65, y: 1.07, type: 5 },
-  { x: 0.95, y: 1.0, type: 1 },
-];
-
+// create void array to store the status and position of each element
 let capsules = [];
+plates = [];
+foods = [];
 
 let lasttime = 0;
 
@@ -52,8 +11,7 @@ function setup() {
   // Set rectMode to CENTER to facilitate subsequent drawing
   rectMode(CENTER);
   // noLoop();
-  plates = [];
-  foods = [];
+ 
 }
 //Function to adjust the canvas size when the window is resized
 function windowResized() {
@@ -88,13 +46,12 @@ function draw() {
   if (millis()-lasttime>1000){
     lasttime = millis();
     capsules = [];
-    //for循环控制药品的数量
     for (let i = 0; i < 0.6 * side; i++) {
       let x = random(0, 1); // Random x position
       let y = random(0, 1); // Random y position
 
       // Define colors for the capsules and pills
-      let color1 = color(255, 152, 129); // Capsule top color
+      let color1 = color(random(255), 152, 129); // Capsule top color
       let color2 = color(254, 254, 162); // Capsule bottom color
       let color3 = color(139, 195, 219); // Pill color
       let color4 = color(255); // Secondary pill color

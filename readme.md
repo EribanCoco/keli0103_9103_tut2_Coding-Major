@@ -11,7 +11,8 @@ At the start of the animation, the screen is a blank pink canvas, and then, plat
 Throughout this process, viewers' attention is typically drawn to the plates with the largest movements. This movement not only emphasizes the strong allure of food but also symbolizes the overwhelming temptation of unhealthy eating in life. Just as in real life, people are often distracted by the question of what delicious food to eat today, continuously attracted by tempting foods while neglecting healthy eating habits. However, the medicine placed beneath the plates, though small, cannot be ignored. It serves as a constant reminder that indulgent eating habits can lead to health risks, and if left unaddressed, these risks can accumulate and result in serious consequences. Through this design, I aim to further highlight the importance of a healthy lifestyle, urging the audience to pay attention to the long-term impact of eating habits on health.
 
 
-### Part 2: Details of my individual approach to animating the group code
+### Part 2: Details of my individual approach to animating the group code & Technical Explanation 
+
 
 The animation I created is designed to make all plates move diagonally toward the upper-right corner. In the group code, plate positions were stored using specific points in an array. Directly using these positions to animate the plates resulted in gaps appearing on the canvas when they moved far enough upward. Additionally, since these positions were roughly estimated rather than calculated precisely, the plates often overlapped during movement.
 
@@ -190,15 +191,10 @@ Figure 3. BBQ Party Flyer-Fathur Rahman
 </div>
 <p></p>
 
-### Part 4: Technical Explanation 
-
-
-
-
-
-
-
-### Reference URL：
+### Part 4: Reference URL：
 http://learn.digitalharbor.org/courses/creative-programming/lessons/using-timers-in-p5-js/<br>
+https://p5js.org/reference/p5/pow/<br>
+https://p5js.org/reference/p5/sqrt/<br>
+https://p5js.org/reference/p5/quad/<br>
 https://markdown.com.cn/basic-syntax/line-breaks.html<br>
 
