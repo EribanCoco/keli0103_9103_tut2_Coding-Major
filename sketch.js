@@ -43,12 +43,17 @@ let foods = [
   { x: 0.95, y: 1.0, type: 1 },
 ];
 
+let capsules = [];
+
+let lasttime = 0;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   // Set rectMode to CENTER to facilitate subsequent drawing
   rectMode(CENTER);
   // noLoop();
-  plates=[];
+  plates = [];
+  foods = [];
 }
 //Function to adjust the canvas size when the window is resized
 function windowResized() {
@@ -73,43 +78,57 @@ function draw() {
   console.log(timer); 
   // When the timer exceeds a certain value and the plate count is less than 35, add a new plate
   if (timer>600*plates.length && plates.length<35){
-    plates.push({ x: initPoint, y: initPoint, type: Math.round(random(0,8)) });
+    addElement(initPoint, initPoint, Math.floor(random(1,8)));
   }
-  console.log(plates);
+
 
   // The section dealing with the "medication" part
 
   // Loop to control the number of pills
-  for (let i = 0; i < 0.6 * side; i++) {
-    let x = random(0, 1); // Random x position
-    let y = random(0, 1); // Random y position
+  if (millis()-lasttime>1000){
+    lasttime = millis();
+    capsules = [];
+    //for循环控制药品的数量
+    for (let i = 0; i < 0.6 * side; i++) {
+      let x = random(0, 1); // Random x position
+      let y = random(0, 1); // Random y position
 
-    // Define colors for the capsules and pills
-    let color1 = color(255, 152, 129); // Capsule top color
-    let color2 = color(254, 254, 162); // Capsule bottom color
-    let color3 = color(139, 195, 219); // Pill color
-    let color4 = color(255); // Secondary pill color
+      // Define colors for the capsules and pills
+      let color1 = color(255, 152, 129); // Capsule top color
+      let color2 = color(254, 254, 162); // Capsule bottom color
+      let color3 = color(139, 195, 219); // Pill color
+      let color4 = color(255); // Secondary pill color
 
     // Generate a random angle for the capsules
-    let angle = random(TWO_PI);
+      let angle = random(TWO_PI);
 
+      capsules.push({x:x, y:y, c1:color1, c2:color2, c3:color3, c4:color4, angle, angle})
+    }
+  }
+
+    for (let i = 0; i < capsules.length; i++) {
+      capsule = capsules[i]
     // Draw capsules and pills
     // Capsule drawing
-    drawCapsule(x, y, 0.25 * side, side, color1, color2, angle);
+      drawCapsule(capsule.x, capsule.y, 0.25 * side, side, capsule.c1, capsule.c2, capsule.angle);
 
-    // Pill drawing (can add more variations in size and color here)
-    fill(color3);
-    noStroke();
-    circle((x + 0.1) * side, (y + 0.1) * side, 0.015 * side)
+      //Pill drawing (can add more variations in size and color here)
+      fill(capsule.c3);
+      noStroke();
+      circle((capsule.x + 0.1) * side, (capsule.y + 0.1) * side, 0.015 * side)
 
-    fill(color4);
-    circle((x + 0.05) * side, (y + 0.07) * side, 0.01 * side)
+      fill(capsule.c4);
+      circle((capsule.x +  0.05) * side, (capsule.y + 0.07) * side, 0.01 * side)
 
   }
 
   // Loop to draw each plate
   for (let i = 0; i < plates.length; i++) {
     let plate = plates[i];
+    // Initialize drawing style for plates
+    noFill();
+    noStroke();
+    // Determine plate drawing based on its type
     plate.x = plate.x + moveSpeed * sin(PI / 4); // Move plate along x-axis
     plate.y = plate.y - moveSpeed * cos(PI / 4); // Move plate along y-axis
     // Reset plate position when it goes off the canvas
@@ -120,10 +139,6 @@ function draw() {
         plate.x = plate.y = -sqrt(2) / 4 * PlateRatio;
       }
     }
-    // Initialize drawing style for plates
-    noFill();
-    noStroke();
-    // Determine plate drawing based on its type
     switch (plate.type) {
       case 1:
         drawPinkPlate(plate.x, plate.y, PlateDiameter, side)
@@ -156,6 +171,15 @@ function draw() {
     noFill();
     noStroke();
     // Determine food drawing based on its type
+    food.x = food.x + moveSpeed * sin(PI / 4);
+    food.y = food.y - moveSpeed * cos(PI / 4);
+    if (food.y <= 0 - PlateRatio / 2) {
+      food.y = food.x + sqrt(2) * PlateRatio;
+      food.x = 0 - PlateRatio / 2;
+      if (food.y >= 2) {
+        food.x = food.y = -sqrt(2) / 4 * PlateRatio;
+      }
+    }
     switch (food.type) {
       case 1:
         drawSushi(food.x, food.y, PlateDiameter, side)
@@ -194,6 +218,13 @@ function draw() {
   }
 }
 
+function addElement(x, y, type){
+  plates.push({ x: x, y: y, type: type });
+  if (type != 6) {
+    foods.push({ x: x, y: y, type: Math.floor(random(1, 12)) });
+  }
+}
+
 
 // Function to draw capsule
 function drawCapsule(x, y, r, side, color1, color2, angle) {
@@ -213,101 +244,102 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
 
 // Function to draw plates
   // Function to draw a pink plate
-  function drawPinkPlate(x, y, r, side) {
+function drawPinkPlate(x, y, r, side) {
 
     // function to draw pink flower pattern 
-    function drawPinkFlower(x, y, PlateDiameter) {
-      noStroke();
-      fill(255, 205, 205);
-      rect(x, y, 0.06 * PlateDiameter, 0.12 * PlateDiameter, 10);
-      rect(x, y, 0.12 * PlateDiameter, 0.06 * PlateDiameter, 10);
-      fill(255);
-      circle(x, y, 0.03 * PlateDiameter);
-    }
+  function drawPinkFlower(x, y, PlateDiameter) {
+    noStroke();
+    fill(255, 205, 205);
+    rect(x, y, 0.06 * PlateDiameter, 0.12 * PlateDiameter, 10);
+    rect(x, y, 0.12 * PlateDiameter, 0.06 * PlateDiameter, 10);
+    fill(255);
+    circle(x, y, 0.03 * PlateDiameter);
+  }
 
     // Plate body
-    noStroke();
-    fill(233, 167, 165);
-    circle(x * side, y * side, r);
+  noStroke();
+  fill(233, 167, 165);
+  circle(x * side, y * side, r);
 
-    fill(255);
-    circle(x * side, y * side, 0.95 * r);
+  fill(255);
+  circle(x * side, y * side, 0.95 * r);
 
-    stroke(233, 167, 165);
-    strokeWeight(0.01 * r);
-    noFill();
-    circle(x * side, y * side, 0.65 * r);
+  stroke(233, 167, 165);
+  strokeWeight(0.01 * r);
+  noFill();
+  circle(x * side, y * side, 0.65 * r);
 
     // Draw 8 flowers around the center
-    for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 8; i++) {
       let angle = TWO_PI * i / 8; // Each flower is spaced by 1/8 of a circle
       let px = (x * side) + (0.4 * r) * cos(angle); // Calculate flower's x-coordinate
       let py = (y * side) + (0.4 * r) * sin(angle); // Calculate flower's y-coordinate
       drawPinkFlower(px, py, r); // Draw the flower
-    }
   }
+
+}
   // Function to draw a yellow plate
-  function drawYellowPlate(x, y, r, side) {
+function drawYellowPlate(x, y, r, side) {
 
     // Yellow plate body
-    noStroke();
-    fill(253, 224, 161);
-    circle(x * side, y * side, r);
+  noStroke();
+  fill(253, 224, 161);
+  circle(x * side, y * side, r);
 
-    fill(255, 243, 217);
-    circle(x * side, y * side, 0.95 * r);
+  fill(255, 243, 217);
+  circle(x * side, y * side, 0.95 * r);
 
-    stroke(242, 183, 101);
-    strokeWeight(0.015 * r);
-    fill(255);
-    circle(x * side, y * side, 0.65 * r);
+  stroke(242, 183, 101);
+  strokeWeight(0.015 * r);
+  fill(255);
+  circle(x * side, y * side, 0.65 * r);
 
     // Circular flower pattern
-    fill(242, 183, 101)
-    noStroke();
-    for (let i = 0; i < 4; i++) {
+  fill(242, 183, 101)
+  noStroke();
+  for (let i = 0; i < 4; i++) {
       let angle = (TWO_PI * i / 4) + ((PI / 4)); // Each circle is spaced 1/4 of a circle, starting from 4/PI
       let yx = (x * side) + (0.4 * r) * cos(angle); // Calculate flower's x-coordinate
       let yy = (y * side) + (0.4 * r) * sin(angle); // Calculate flower's y-coordinate
-      circle(yx, yy, 0.1 * r);
-    }
+    circle(yx, yy, 0.1 * r);
+  }
 
     // Rhombus pattern
-    drawRhombus(x * side + r * 0.4, y * side, 0.04 * side, 0.02 * side, 0, color(242, 183, 101));
-    drawRhombus(x * side - r * 0.4, y * side, 0.04 * side, 0.02 * side, 0, color(242, 183, 101));
-    drawRhombus(x * side, y * side - r * 0.4, 0.02 * side, 0.04 * side, 0, color(242, 183, 101));
-    drawRhombus(x * side, y * side + r * 0.4, 0.02 * side, 0.04 * side, 0, color(242, 183, 101));
-  }
+  drawRhombus(x * side + r * 0.4, y * side, 0.04 * side, 0.02 * side, 0, color(242, 183, 101));
+  drawRhombus(x * side - r * 0.4, y * side, 0.04 * side, 0.02 * side, 0, color(242, 183, 101));
+  drawRhombus(x * side, y * side - r * 0.4, 0.02 * side, 0.04 * side, 0, color(242, 183, 101));
+  drawRhombus(x * side, y * side + r * 0.4, 0.02 * side, 0.04 * side, 0, color(242, 183, 101));
+}
   // Function to draw a green plate
-  function drawGreenPlate(x, y, r, side) {
+function drawGreenPlate(x, y, r, side) {
     // Green plate body
-    noStroke();
-    fill(193, 217, 170);
-    circle(x * side, y * side, r);
+  noStroke();
+  fill(193, 217, 170);
+  circle(x * side, y * side, r);
 
-    noFill();
-    stroke(227, 246, 203);
-    strokeWeight(0.02 * r);
-    circle(x * side, y * side, 0.85 * r);
+  noFill();
+  stroke(227, 246, 203);
+  strokeWeight(0.02 * r);
+  circle(x * side, y * side, 0.85 * r);
 
-    fill(255);
-    stroke(227, 246, 203);
-    strokeWeight(0.015 * r);
-    circle(x * side, y * side, 0.70 * r);
+  fill(255);
+  stroke(227, 246, 203);
+  strokeWeight(0.015 * r);
+  circle(x * side, y * side, 0.70 * r);
 
       // Call the leaf pattern function and draw leaves at different positions
-      for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++) {
         let angle = TWO_PI * i / 4; // Each leaf is spaced by 1/4 of a circle
         let gx = (x * side) + (0.43 * r) * cos(angle); // Calculate leaf's x-coordinate
         let gy = (y * side) + (0.43 * r) * sin(angle); // Calculate leaf's y-coordinate
         drawLeafPattern(gx, gy, r); // Draw the leaf pattern
-      }
+  }
 
       // Leaf pattern function
-      function drawLeafPattern(centerX, centerY, PlateDiameter) {
+  function drawLeafPattern(centerX, centerY, PlateDiameter) {
         fill(227, 246, 203); // Fixed leaf color
-        noStroke();
-    
+    noStroke();
+
         let width = 0.13 * PlateDiameter;  // Fixed leaf width
         let height = 0.05 * PlateDiameter; // Fixed leaf height
 
@@ -320,151 +352,151 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
       // Draw two rotated ellipses for leaves
       drawRotatedEllipse(x1, y1, width, height, PI / 4); // First leaf
       drawRotatedEllipse(x2, y2, width, height, PI / 1.6); // Second leaf
-    }
   }
+}
   // Function to draw a blue plate
-  function drawBluePlate(x, y, r, side) {
-    noStroke();
-    fill(170, 211, 215);
-    circle(x * side, y * side, r);
+function drawBluePlate(x, y, r, side) {
+  noStroke();
+  fill(170, 211, 215);
+  circle(x * side, y * side, r);
 
-    fill(220, 243, 254);
-    circle(x * side, y * side, 0.95 * r);
+  fill(220, 243, 254);
+  circle(x * side, y * side, 0.95 * r);
 
-    noFill();
-    stroke(139, 195, 219);
-    strokeWeight(0.02 * r);
-    circle(x * side, y * side, 0.75 * r);
+  noFill();
+  stroke(139, 195, 219);
+  strokeWeight(0.02 * r);
+  circle(x * side, y * side, 0.75 * r);
 
-    fill(255);
-    stroke(170, 211, 215);
-    strokeWeight(0.015 * r);
-    circle(x * side, y * side, 0.65 * r);
-  }
+  fill(255);
+  stroke(170, 211, 215);
+  strokeWeight(0.015 * r);
+  circle(x * side, y * side, 0.65 * r);
+}
   // Function to draw a purple plate
-  function drawPurplePlate(x, y, r, side) {
+function drawPurplePlate(x, y, r, side) {
     // Purple plate
-    noStroke();
-    fill(230, 216, 241);
-    circle(x * side, y * side, r);
+  noStroke();
+  fill(230, 216, 241);
+  circle(x * side, y * side, r);
 
-    fill(247, 236, 255);
-    circle(x * side, y * side, 0.82 * r);
+  fill(247, 236, 255);
+  circle(x * side, y * side, 0.82 * r);
 
-    fill(255);
-    stroke(218, 192, 242);
-    strokeWeight(0.015 * r);
-    circle(x * side, y * side, 0.63 * r);
+  fill(255);
+  stroke(218, 192, 242);
+  strokeWeight(0.015 * r);
+  circle(x * side, y * side, 0.63 * r);
 
     // Draw 4 flowers around the center
-    for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 4; i++) {
       let angle = TWO_PI * i / 4; // Each flower is spaced by 1/4 of the circle
       let px = (x * side) + (0.4 * r) * cos(angle); // Calculate the x coordinate of the flower
       let py = (y * side) + (0.4 * r) * sin(angle); // Calculate the y coordinate of the flower
       drawPurpleFlower(px, py); // Draw the flower
-    }
+  }
 
     // Function to draw purple flower pattern
-    function drawPurpleFlower(px, py) {
-      //   let side = min(windowWidth, windowHeight);
-      //   let PlateRadius = 0.265 * side;
-      noStroke();
-      fill(218, 192, 242);
-      rect(px, py, 0.06 * r, 0.12 * r);
-      rect(px, py, 0.12 * r, 0.06 * r,);
-      fill(247, 236, 255);
-      rect(px, py, 0.03 * r, 0.03 * r,);
-    }
+  function drawPurpleFlower(px, py) {
+    //   let side = min(windowWidth, windowHeight);
+    //   let PlateRadius = 0.265 * side;
+    noStroke();
+    fill(218, 192, 242);
+    rect(px, py, 0.06 * r, 0.12 * r);
+    rect(px, py, 0.12 * r, 0.06 * r,);
+    fill(247, 236, 255);
+    rect(px, py, 0.03 * r, 0.03 * r,);
   }
+}
 
   // Function to draw a rainbow plate
-  function drawRainbowPlate(x, y, r, side) {
+function drawRainbowPlate(x, y, r, side) {
 
-    noStroke();
-    fill(170, 211, 215);
-    circle(x * side, y * side, r);
+  noStroke();
+  fill(170, 211, 215);
+  circle(x * side, y * side, r);
 
-    fill(220, 243, 254);
-    circle(x * side, y * side, 0.95 * r);
+  fill(220, 243, 254);
+  circle(x * side, y * side, 0.95 * r);
 
-    noFill();
-    stroke(255, 205, 205);
-    strokeWeight(0.03 * r);
-    circle(x * side, y * side, 0.85 * r);
+  noFill();
+  stroke(255, 205, 205);
+  strokeWeight(0.03 * r);
+  circle(x * side, y * side, 0.85 * r);
 
-    fill(255);
-    stroke(253, 224, 161);
-    strokeWeight(0.03 * r);
-    circle(x * side, y * side, 0.725 * r);
-  }
+  fill(255);
+  stroke(253, 224, 161);
+  strokeWeight(0.03 * r);
+  circle(x * side, y * side, 0.725 * r);
+}
   // Function to draw a Hotpot
-  function drawHotpot(x, y, r, side) {
+function drawHotpot(x, y, r, side) {
     // Multiply the ratio by side to get specific pixel coordinates
-    x *= side;
-    y *= side;
-    r *= side;
+  x *= side;
+  y *= side;
+  r *= side;
 
     // Silver pot
-    noStroke();
-    fill(160);
-    circle(x, y, r);
-    circle(x - 0.12 * side, y, 0.2 * r);
-    circle(x + 0.12 * side, y, 0.2 * r);
+  noStroke();
+  fill(160);
+  circle(x, y, r);
+  circle(x - 0.12 * side, y, 0.2 * r);
+  circle(x + 0.12 * side, y, 0.2 * r);
 
     // Hotpot soup
-    drawSemiCircle(x, y, 0.92 * r, 0, color(219, 128, 89));
-    drawSemiCircle(x, y, 0.92 * r, PI, color(200, 95, 95));
-    drawSemiCircle(x, y - 0.23 * r, 0.46 * r, PI, color(219, 128, 89));
-    drawSemiCircle(x, y + 0.23 * r, 0.46 * r, 0, color(200, 95, 95));
+  drawSemiCircle(x, y, 0.92 * r, 0, color(219, 128, 89));
+  drawSemiCircle(x, y, 0.92 * r, PI, color(200, 95, 95));
+  drawSemiCircle(x, y - 0.23 * r, 0.46 * r, PI, color(219, 128, 89));
+  drawSemiCircle(x, y + 0.23 * r, 0.46 * r, 0, color(200, 95, 95));
 
     // Tomato
-    fill(218, 86, 63);
-    circle(x, y - 0.07 * side, 0.32 * r);
-    drawStar(x, y - 0.07 * side, 0.06 * r, color(119, 221, 81));
-    fill(218, 86, 63);
-    circle(x + 0.07 * side, y - 0.02 * side, 0.32 * r);
-    drawStar(x + 0.07 * side, y - 0.02 * side, 0.06 * r, color(119, 221, 81));
+  fill(218, 86, 63);
+  circle(x, y - 0.07 * side, 0.32 * r);
+  drawStar(x, y - 0.07 * side, 0.06 * r, color(119, 221, 81));
+  fill(218, 86, 63);
+  circle(x + 0.07 * side, y - 0.02 * side, 0.32 * r);
+  drawStar(x + 0.07 * side, y - 0.02 * side, 0.06 * r, color(119, 221, 81));
 
     // Orange
-    fill(255, 220, 89);
-    circle(x - 0.072 * side, y + 0.02 * side, 0.32 * r);
-    stroke(219, 128, 89);
-    strokeWeight(0.01 * r);
-    for (let i = 0; i < 8; i++) {
-      let angle = i * (PI / 4);
-      let lineX = x - 0.072 * side + 0.16 * r * cos(angle);
-      let lineY = y + 0.02 * side + 0.16 * r * sin(angle);
-      line(x - 0.072 * side, y + 0.02 * side, lineX, lineY);
-    }
-
-
-    // 黄瓜
-    noStroke();
-    fill(212, 255, 139);
-    circle(x - 0.083 * side, y - 0.05 * side, 0.13 * r);
-    circle(x - 0.05 * side, y + 0.08 * side, 0.13 * r);
-    circle(x, y + 0.03 * side, 0.13 * r);
-
-    // 黄色丸子
-    fill(255, 220, 89);
-    circle(x + 0.015 * side, y + 0.08 * side, 0.09 * r);
-    circle(x + 0.06 * side, y - 0.08 * side, 0.09 * r);
-    circle(x + 0.09 * side, y + 0.04 * side, 0.08 * r);
-
-    // 气泡
-    noFill();
-    stroke(255);
-    strokeWeight(0.01 * r);
-    circle(x + 0.03 * side, y + 0.04 * side, 0.08 * r);
-    circle(x - 0.01 * side, y - 0.02 * side, 0.06 * r);
-    circle(x - 0.07 * side, y - 0.08 * side, 0.05 * r);
-    circle(x - 0.02 * side, y + 0.1 * side, 0.07 * r);
-    circle(x + 0.07 * side, y + 0.08 * side, 0.04 * r);
+  fill(255, 220, 89);
+  circle(x - 0.072 * side, y + 0.02 * side, 0.32 * r);
+  stroke(219, 128, 89);
+  strokeWeight(0.01 * r);
+  for (let i = 0; i < 8; i++) {
+    let angle = i * (PI / 4);
+    let lineX = x - 0.072 * side + 0.16 * r * cos(angle);
+    let lineY = y + 0.02 * side + 0.16 * r * sin(angle);
+    line(x - 0.072 * side, y + 0.02 * side, lineX, lineY);
   }
+
+
+  // 黄瓜
+  noStroke();
+  fill(212, 255, 139);
+  circle(x - 0.083 * side, y - 0.05 * side, 0.13 * r);
+  circle(x - 0.05 * side, y + 0.08 * side, 0.13 * r);
+  circle(x, y + 0.03 * side, 0.13 * r);
+
+  // 黄色丸子
+  fill(255, 220, 89);
+  circle(x + 0.015 * side, y + 0.08 * side, 0.09 * r);
+  circle(x + 0.06 * side, y - 0.08 * side, 0.09 * r);
+  circle(x + 0.09 * side, y + 0.04 * side, 0.08 * r);
+
+  // 气泡
+  noFill();
+  stroke(255);
+  strokeWeight(0.01 * r);
+  circle(x + 0.03 * side, y + 0.04 * side, 0.08 * r);
+  circle(x - 0.01 * side, y - 0.02 * side, 0.06 * r);
+  circle(x - 0.07 * side, y - 0.08 * side, 0.05 * r);
+  circle(x - 0.02 * side, y + 0.1 * side, 0.07 * r);
+  circle(x + 0.07 * side, y + 0.08 * side, 0.04 * r);
+}
 
 // Function to draw the food
   // Function to draw the lime cake
-  function drawLimeCake(x, y, r, side) {
+function drawLimeCake(x, y, r, side) {
   // Cake part
   fill(255, 245, 221);  // Cake color
   stroke(251, 234, 189); // Cake border color
@@ -505,7 +537,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   drawRotatedRectangle(x * side, y * side + 0.03 * side, 0.04 * r, 0.015 * r, -PI / 3); // Draw rotated line
 }
   // Function to draw sushi
-  function drawSushi(x, y, r, side) {
+function drawSushi(x, y, r, side) {
   // Seaweed rice balls
   fill(255);  // White color for rice
   stroke(60); // Light grey border for rice
@@ -547,7 +579,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   circle(x * side - 0.039 * side, y * side + 0.032 * side, 0.045 * r);
 }
   // Function to draw pudding
-  function drawPudding(x, y, r, side) {
+function drawPudding(x, y, r, side) {
   // Left side of the pudding
   fill(255, 231, 159); // Light yellow color for the pudding
   noStroke();
@@ -567,7 +599,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   rect(x * side + 0.039 * side, y * side, 0.02 * r, 0.4 * r);
 }
   // Function to draw a dark donut
-  function drawDarkDonut(x, y, r, side) {
+function drawDarkDonut(x, y, r, side) {
   // Donut body
   stroke(78, 55, 17); // Dark brown color for the border
   strokeWeight(0.14 * r); // Border thickness
@@ -607,7 +639,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   circle(x * side + 0.023 * side, y * side - 0.037 * side, 0.03 * r);
 }
   // Function to draw a light-colored donut
-  function drawLightDonut(x, y, r, side) {
+function drawLightDonut(x, y, r, side) {
 
   // Drawing the main body of the donut
   stroke(230, 165, 59);  // Set stroke color to light yellow
@@ -651,7 +683,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
 }
 
   // Function to draw a burger
-  function drawBurger(x, y, r, side) {
+function drawBurger(x, y, r, side) {
   // Drawing the main body of the burger
 
   // Drawing the lettuce (green)
@@ -687,7 +719,7 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   ellipse(x * side + 0.035 * side, y * side + 0.02 * side, 0.016 * r, 0.03 * r);  // Draw sesame seed 17
 }
   // Function to draw a pizza
-  function drawPizza(x, y, r, side) {
+function drawPizza(x, y, r, side) {
   // Drawing the main body of the pizza
   noStroke();  // Disable outline
   fill(248, 185, 103);  // Color for the pizza crust
@@ -745,117 +777,117 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
   drawRhombus(x * side + 0.017 * side, y * side + 0.03 * side, 0.03 * r, 0.07 * r, -PI / 6, color(182, 215, 136))
   drawRhombus(x * side + 0.018 * side, y * side + 0.065 * side, 0.03 * r, 0.07 * r, PI, color(182, 215, 136))
   drawRhombus(x * side + 0.06 * side, y * side + 0.038 * side, 0.03 * r, 0.07 * r, PI / 5, color(182, 215, 136))
-  }
+}
   // Function to draw curry
-  function drawCurry(x, y, r, side) {
+function drawCurry(x, y, r, side) {
     // Define points for drawing mayonnaise
-    let Mpoints = [
-      { x: x * side - 0.06 * side, y: y * side - 0.02 * side },
-      { x: x * side - 0.01 * side, y: y * side + 0.056 * side },
-      { x: x * side - 0.03 * side, y: y * side - 0.045 * side },
-      { x: x * side + 0.02 * side, y: y * side + 0.05 * side },
-      { x: x * side + 0.01 * side, y: y * side - 0.05 * side },
-      { x: x * side + 0.05 * side, y: y * side + 0.035 * side },
-    ];
+  let Mpoints = [
+    { x: x * side - 0.06 * side, y: y * side - 0.02 * side },
+    { x: x * side - 0.01 * side, y: y * side + 0.056 * side },
+    { x: x * side - 0.03 * side, y: y * side - 0.045 * side },
+    { x: x * side + 0.02 * side, y: y * side + 0.05 * side },
+    { x: x * side + 0.01 * side, y: y * side - 0.05 * side },
+    { x: x * side + 0.05 * side, y: y * side + 0.035 * side },
+  ];
     /// Draw curry main part
-    noStroke();
-    fill(242, 183, 101);
-    circle(x * side, y * side, 0.65 * r);
-    fill(173, 72, 35);
-    circle(x * side, y * side, 0.5 * r);
+  noStroke();
+  fill(242, 183, 101);
+  circle(x * side, y * side, 0.65 * r);
+  fill(173, 72, 35);
+  circle(x * side, y * side, 0.5 * r);
     // draw mayonnaise
-    drawPolyline(Mpoints, 0.004 * side, color(255, 240, 211));
-  }
+  drawPolyline(Mpoints, 0.004 * side, color(255, 240, 211));
+}
   // Function to draw a toast with a fried egg
-  function drawToast(x, y, r, side) {
+function drawToast(x, y, r, side) {
     // Draw toast slice
-    noStroke();
-    fill(179, 133, 92)
-    ellipse(x * side, y * side - 0.04 * side, 0.45 * r, 0.2 * r);
-    rect(x * side, y * side + 0.02 * side, 0.1 * side, 0.09 * side)
-    fill(255, 225, 144)
-    ellipse(x * side, y * side - 0.04 * side, 0.4 * r, 0.17 * r);
-    rect(x * side, y * side + 0.015 * side, 0.09 * side, 0.09 * side)
+  noStroke();
+  fill(179, 133, 92)
+  ellipse(x * side, y * side - 0.04 * side, 0.45 * r, 0.2 * r);
+  rect(x * side, y * side + 0.02 * side, 0.1 * side, 0.09 * side)
+  fill(255, 225, 144)
+  ellipse(x * side, y * side - 0.04 * side, 0.4 * r, 0.17 * r);
+  rect(x * side, y * side + 0.015 * side, 0.09 * side, 0.09 * side)
     // Draw fried egg
-    fill(255);
-    circle(x * side, y * side + 0.01 * side, 0.28 * r);
-    fill(255, 213, 97);
-    circle(x * side + 0.012 * side, y * side + 0.01 * side + 0.01 * side, 0.12 * r);
+  fill(255);
+  circle(x * side, y * side + 0.01 * side, 0.28 * r);
+  fill(255, 213, 97);
+  circle(x * side + 0.012 * side, y * side + 0.01 * side + 0.01 * side, 0.12 * r);
     // Draw chopped green onions
-    fill(158, 204, 129);
-    noStroke();
+  fill(158, 204, 129);
+  noStroke();
     // Draw rotated green onion slices
-    drawRotatedRectangle(x * side + 0.015 * side, y * side - 0.031 * side, 0.03 * r, 0.015 * r, -PI / 3)
-    drawRotatedRectangle(x * side - 0.025 * side, y * side - 0.031 * side, 0.03 * r, 0.015 * r, -PI / 4)
-    drawRotatedRectangle(x * side - 0.023 * side, y * side + 0.031 * side, 0.03 * r, 0.015 * r, PI / 3)
-    drawRotatedRectangle(x * side + 0.03 * side, y * side + 0.030 * side, 0.03 * r, 0.015 * r, PI / 2)
-    drawRotatedRectangle(x * side - 0.03 * side, y * side, 0.03 * r, 0.015 * r, PI / 3)
-    drawRotatedRectangle(x * side + 0.03 * side, y * side - 0.01 * side, 0.03 * r, 0.015 * r, PI / 3)
-    drawRotatedRectangle(x * side, y * side + 0.03 * side, 0.03 * r, 0.015 * r, -PI / 3)
-  }
+  drawRotatedRectangle(x * side + 0.015 * side, y * side - 0.031 * side, 0.03 * r, 0.015 * r, -PI / 3)
+  drawRotatedRectangle(x * side - 0.025 * side, y * side - 0.031 * side, 0.03 * r, 0.015 * r, -PI / 4)
+  drawRotatedRectangle(x * side - 0.023 * side, y * side + 0.031 * side, 0.03 * r, 0.015 * r, PI / 3)
+  drawRotatedRectangle(x * side + 0.03 * side, y * side + 0.030 * side, 0.03 * r, 0.015 * r, PI / 2)
+  drawRotatedRectangle(x * side - 0.03 * side, y * side, 0.03 * r, 0.015 * r, PI / 3)
+  drawRotatedRectangle(x * side + 0.03 * side, y * side - 0.01 * side, 0.03 * r, 0.015 * r, PI / 3)
+  drawRotatedRectangle(x * side, y * side + 0.03 * side, 0.03 * r, 0.015 * r, -PI / 3)
+}
 
 
 
 
 //绘制形状的函数
   // Function to draw a rotated ellipse
-  function drawRotatedEllipse(cx, cy, w, h, angle) {
+function drawRotatedEllipse(cx, cy, w, h, angle) {
   push();               // Save the current coordinate system
   translate(cx, cy);    // Move the origin to the center of the ellipse
   rotate(angle);        // Rotate the coordinate system by the given angle
   ellipse(0, 0, w, h);  // Draw the ellipse in the rotated coordinate system
   pop();                // Restore the previous coordinate system
-  }
+}
   // Function to draw a rhombus (diamond shape)
-  function drawRhombus(cx, cy, width, height, angle, fillColor) {
-    let side = min(windowWidth, windowHeight);
+function drawRhombus(cx, cy, width, height, angle, fillColor) {
+  let side = min(windowWidth, windowHeight);
     
     // Calculate the four vertices of the rhombus
-    let halfWidth = width / 2;
-    let halfHeight = height / 2;
+  let halfWidth = width / 2;
+  let halfHeight = height / 2;
 
     // Coordinates of the vertices
-    let x1 = cx;
+  let x1 = cx;
     let y1 = cy - halfHeight; // Top vertex
 
     let x2 = cx + halfWidth; // Right vertex
-    let y2 = cy;
+  let y2 = cy;
 
-    let x3 = cx;
+  let x3 = cx;
     let y3 = cy + halfHeight; // Bottom vertex
 
     let x4 = cx - halfWidth; // Left vertex
-    let y4 = cy;
+  let y4 = cy;
 
     // Rotate the coordinates
-    let points = [
-      createVector(x1, y1),
-      createVector(x2, y2),
-      createVector(x3, y3),
-      createVector(x4, y4),
-    ];
+  let points = [
+    createVector(x1, y1),
+    createVector(x2, y2),
+    createVector(x3, y3),
+    createVector(x4, y4),
+  ];
 
     // Apply rotation to each vertex
-    for (let p of points) {
-      let xOffset = p.x - cx;
-      let yOffset = p.y - cy;
+  for (let p of points) {
+    let xOffset = p.x - cx;
+    let yOffset = p.y - cy;
 
       // Rotate each point's coordinates around the center
-      p.x = cx + xOffset * cos(angle) - yOffset * sin(angle);
-      p.y = cy + xOffset * sin(angle) + yOffset * cos(angle);
-    }
+    p.x = cx + xOffset * cos(angle) - yOffset * sin(angle);
+    p.y = cy + xOffset * sin(angle) + yOffset * cos(angle);
+  }
 
     // Draw the rhombus shape
     noStroke(); // No border for the shape
     fill(fillColor); // Set the fill color for the rhombus
-    beginShape();
-    for (let p of points) {
+  beginShape();
+  for (let p of points) {
       vertex(p.x, p.y); // Add each rotated vertex to the shape
-    }
-    endShape(CLOSE); // Close the shape
   }
+    endShape(CLOSE); // Close the shape
+}
   // Function to draw a star
-  function drawStar(centerX, centerY, d, fillColor) {
+function drawStar(centerX, centerY, d, fillColor) {
     fill(fillColor); // Set the fill color for the star
     noStroke();      // No border for the star
 
@@ -863,32 +895,32 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
     let outerRadius = d; // Radius of the outer points
     let innerRadius = d * 0.382; // Radius of the inner points (approximately 38.2% of outer radius)
 
-    beginShape();
+  beginShape();
 
-    for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10; i++) {
       // Alternate between outer and inner points for the star's shape
-      let radius = i % 2 === 0 ? outerRadius : innerRadius;
+    let radius = i % 2 === 0 ? outerRadius : innerRadius;
       
       // Calculate the angle for each point
       let angle = PI / 2 + (TWO_PI * i) / 10; // Start from the top and move clockwise
 
       // Calculate the coordinates for each vertex
-      let x = centerX + radius * cos(angle);
+    let x = centerX + radius * cos(angle);
       let y = centerY - radius * sin(angle); // Use negative sin for correct Y-axis orientation
 
       vertex(x, y); // Add the vertex to the star shape
-    }
+  }
 
     endShape(CLOSE); // Close the shape, completing the star
-  }
+}
   // Function to draw a semi-circle
-  function drawSemiCircle(centerX, centerY, straightEdgeLength, angle, fillColor) {
+function drawSemiCircle(centerX, centerY, straightEdgeLength, angle, fillColor) {
     // Calculate the radius of the semi-circle from the straight edge length
-    let radius = straightEdgeLength / 2;
+  let radius = straightEdgeLength / 2;
 
     // Set the fill color for the semi-circle
-    fill(fillColor);
-    noStroke();
+  fill(fillColor);
+  noStroke();
 
     // Apply the transformation matrix to rotate the shape
     push(); // Save the current coordinate system
@@ -899,33 +931,33 @@ function drawCapsule(x, y, r, side, color1, color2, angle) {
     arc(0, 0, straightEdgeLength, straightEdgeLength, -PI / 2, PI / 2, PIE); 
 
     pop(); // Restore the previous coordinate system
-  }
+}
   // Function to draw a rotated rectangle
-  function drawRotatedRectangle(x, y, w, h, angle) {
+function drawRotatedRectangle(x, y, w, h, angle) {
       // Save the current coordinate system's state
-      push();
+  push();
 
       // Move the origin to the center of the rectangle
-      translate(x, y);
+  translate(x, y);
 
       // Apply the rotation by the specified angle
-      rotate(angle);
+  rotate(angle);
 
       // Draw the rectangle
-      rect(0, 0, w, h);
+  rect(0, 0, w, h);
 
       // Restore the original coordinate system state
-      pop();
-  }
+  pop();
+}
   // Function to draw a polyline (multiple connected lines)
-  function drawPolyline(points, weight, color) {
+function drawPolyline(points, weight, color) {
     if (points.length < 2) return; // If there are fewer than 2 points, a polyline cannot be drawn
 
     stroke(color); // Set the stroke color using the passed color parameter
     strokeWeight(weight); // Set the line width using the passed weight parameter
     noFill(); // Do not fill the polyline with color
     beginShape(); // Start drawing the polyline
-    for (let i = 0; i < points.length; i++) {
+  for (let i = 0; i < points.length; i++) {
       vertex(points[i].x, points[i].y); // Add each point as a vertex to the polyline
     }
     endShape(); // Finish the polyline drawing
